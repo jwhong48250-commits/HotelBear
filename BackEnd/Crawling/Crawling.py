@@ -8,6 +8,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
+import random
+
+
 
 # yanolja 홈페이지 접속
 
@@ -137,6 +140,7 @@ def page_crawling(inputType):
         driver.close()
         driver.switch_to.window(driver.window_handles[0])
         time.sleep(1)
+        return typeNum
         
 
 
