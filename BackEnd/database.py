@@ -1,5 +1,5 @@
 import pymysql
-from config import DB_CONFIG
+from BackEnd.config import DB_CONFIG
 
 def get_connection():
     conn = pymysql.connect(
