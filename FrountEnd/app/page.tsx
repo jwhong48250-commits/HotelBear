@@ -5,14 +5,31 @@ import { Header } from "@/components/header"
 import { SearchCard } from "@/components/search-card"
 import { RecommendationsCarousel } from "@/components/recommendations-carousel"
 import { SearchResults } from "@/components/search-results"
+import { AccommodationDetail } from "@/components/accommodation-detail"
 import { AuthModal } from "@/components/auth-modal"
 
 // ─── HERO BACKGROUND IMAGE ──────────────────────────────────────────────────
 // Replace this URL with your own hero background image when ready.
 const HERO_BG_IMAGE = "/hero-bg.jpg"
+
+// ─── MAIN LOGO URL ──────────────────────────────────────────────────────────
+// Replace this URL with your own BearHotel logo image.
+const MAIN_LOGO_URL = "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Logo-IcWDMow1iPBnqAJsrtbPlJsoVXVIeZ.png"
 // ────────────────────────────────────────────────────────────────────────────
 
-type View = "main" | "results"
+type View = "main" | "results" | "detail"
+
+interface AccommodationData {
+  id: number
+  name: string
+  image: string
+  stars: number
+  reviews: number
+  parking: boolean
+  price: number
+  location: string
+  category: string
+}
 
 interface User {
   name: string
@@ -26,6 +43,7 @@ export default function BearHotelApp() {
   const [user, setUser] = useState<User | null>(null)
   const [savedCount] = useState(3)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [selectedAccommodation, setSelectedAccommodation] = useState<AccommodationData | null>(null)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -75,6 +93,13 @@ export default function BearHotelApp() {
 
             {/* Content */}
             <div className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center gap-8">
+              {/* Logo */}
+              <img
+                src={MAIN_LOGO_URL}
+                alt="BearHotel Logo"
+                className="h-16 object-contain drop-shadow-lg"
+              />
+
               {/* Search Card */}
               <div className="w-full px-4">
                 <SearchCard onSearch={handleSearch} />
@@ -119,7 +144,22 @@ export default function BearHotelApp() {
 
       {/* ── SEARCH RESULTS VIEW ───────────────────────────── */}
       {view === "results" && (
-        <SearchResults query={searchQuery} onBack={() => setView("main")} />
+        <SearchResults
+          query={searchQuery}
+          onBack={() => setView("main")}
+          onSelectAccommodation={(accommodation) => {
+            setSelectedAccommodation(accommodation)
+            setView("detail")
+          }}
+        />
+      )}
+
+      {/* ── DETAIL VIEW ───────────────────────────────────── */}
+      {view === "detail" && selectedAccommodation && (
+        <AccommodationDetail
+          accommodation={selectedAccommodation}
+          onBack={() => setView("results")}
+        />
       )}
 
       {/* ── AUTH MODAL ────────────────────────────────────── */}

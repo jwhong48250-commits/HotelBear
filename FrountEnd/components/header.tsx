@@ -46,15 +46,17 @@ export function Header({ user, savedCount, onLoginClick, onLogout, isScrolled = 
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center">
-          <img
-            src={HEADER_LOGO_URL}
+        <img
+            src={isScrolled ? "LogoBlack.png" : "LogoWhite.png"}
             alt="BearHotel Logo"
-            className={`h-8 transition-opacity duration-300 ${isScrolled ? "opacity-100" : "opacity-90"}`}
+            className={`h-8 transition-opacity duration-300 ${
+              isScrolled ? "opacity-100" : "opacity-90"
+            }`}
           />
           <div className={`text-xs font-semibold ml-2 transition-colors duration-300 ${
             isScrolled ? "text-gray-500" : "text-white/70"
           }`}>
-            사용자 로고 PNG 파일
+            {/* 사용자 로고 PNG 파일 */}
           </div>
         </div>
 

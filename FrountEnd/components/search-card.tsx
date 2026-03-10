@@ -1,24 +1,14 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Search, Calendar, Users, ChevronDown, Plus, Minus } from "lucide-react"
-
-// ─── CATEGORY LOGO URLS ─────────────────────────────────────────────────────
-// Replace these URLs with your own category icon PNG files.
-const CATEGORY_LOGO_URLS = {
-  hotel: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Cpath d='M3 21h18M3 10l9-7 9 7v11H3z'/%3E%3C/svg%3E",
-  resort: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Cpath d='M12 2l7 4v5h-14v-5z'/%3E%3C/svg%3E",
-  pension: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Cpath d='M3 12h18M3 12l9-8 9 8'/%3E%3C/svg%3E",
-  guesthouse: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Crect x='3' y='9' width='18' height='12'/%3E%3Cpath d='M12 2v7'/%3E%3C/svg%3E",
-  motel: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Crect x='3' y='5' width='18' height='14'/%3E%3Cline x1='3' y1='9' x2='21' y2='9'/%3E%3C/svg%3E",
-}
+import { Search, Calendar, Users, ChevronDown, Plus, Minus, Building2, Palmtree, Home, Coffee, Bed } from "lucide-react"
 
 const CATEGORIES = [
-  { id: "hotel", label: "호텔", key: "hotel" },
-  { id: "resort", label: "리조트", key: "resort" },
-  { id: "pension", label: "펜션", key: "pension" },
-  { id: "guesthouse", label: "게스트하우스", key: "guesthouse" },
-  { id: "motel", label: "모텔", key: "motel" },
+  { id: "hotel", label: "호텔", icon: Building2 },
+  { id: "resort", label: "리조트", icon: Palmtree },
+  { id: "pension", label: "펜션", icon: Home },
+  { id: "guesthouse", label: "게스트하우스", icon: Coffee },
+  { id: "motel", label: "모텔", icon: Bed },
 ] as const
 
 type CategoryId = (typeof CATEGORIES)[number]["id"]
@@ -77,24 +67,26 @@ export function SearchCard({ onSearch }: SearchCardProps) {
       <div className="flex border-b border-border px-4 pt-4 pb-0 gap-0">
         {CATEGORIES.map((cat) => {
           const isActive = category === cat.id
-          const logoUrl = CATEGORY_LOGO_URLS[cat.key as keyof typeof CATEGORY_LOGO_URLS]
+          const Icon = cat.icon
           return (
             <button
               key={cat.id}
               onClick={() => setCategory(cat.id)}
               className={`flex-1 flex flex-col items-center gap-2 py-4 px-3 rounded-t-xl transition-all border-b-2 ${
                 isActive
-                  ? "border-brand"
+                  ? "border-primary bg-primary/10"
                   : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
-              style={isActive ? { backgroundColor: "var(--brand)" } : {}}
             >
-              <img
-                src={logoUrl}
-                alt={cat.label}
-                className={`w-6 h-6 ${isActive ? "" : "opacity-60"}`}
+              <Icon
+                size={24}
+                className={`transition-colors ${
+                  isActive ? "text-primary" : "text-muted-foreground"
+                }`}
               />
-              <span className={`text-xs font-semibold ${isActive ? "text-white" : "text-muted-foreground"}`}>
+              <span className={`text-xs font-semibold transition-colors ${
+                isActive ? "text-primary" : "text-muted-foreground"
+              }`}>
                 {cat.label}
               </span>
             </button>
