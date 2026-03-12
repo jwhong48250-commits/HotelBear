@@ -1,0 +1,30 @@
+-- 쿼리문
+
+CREATE TABLE onlyHotellist (
+    id INT NOT NULL AUTO_INCREMENT,
+    type INT,
+    area INT,
+    name VARCHAR(255),
+    high_week_price INT,
+    high_weekend_price INT,
+    low_week_price INT,
+    low_weekend_price INT,
+    event_price INT,
+    grade FLOAT,
+    reviewCount INT,
+    facillity_list TEXT,
+    swimming_pool INT,
+    breakfast INT,
+    bathtub INT,
+    pickUp INT,
+    fitness INT,
+    bar INT,
+    desk24 INT,
+    terrace INT,
+    club INT,
+    parking INT,
+    address TEXT,
+    img_url TEXT,
+    star FLOAT,
+    PRIMARY KEY (id)
+);

@@ -10,7 +10,7 @@ import { AuthModal } from "@/components/auth-modal"
 
 // ─── HERO BACKGROUND IMAGE ──────────────────────────────────────────────────
 // Replace this URL with your own hero background image when ready.
-const HERO_BG_IMAGE = "/hero-bg.jpg"
+const HERO_BG_IMAGE = "/Photo3.jpg"
 
 // ─── MAIN LOGO URL ──────────────────────────────────────────────────────────
 // Replace this URL with your own BearHotel logo image.
