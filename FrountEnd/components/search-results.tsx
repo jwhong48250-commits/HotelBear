@@ -127,14 +127,6 @@ export function SearchResults({ query, onBack, onSelectAccommodation }: SearchRe
         {/* Table */}
         <div className="overflow-x-auto bg-card rounded-xl border border-border">
           <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="px-6 py-4 font-semibold text-foreground">숙소</th>
-                <th className="px-6 py-4 font-semibold text-foreground">평점/리뷰</th>
-                <th className="px-6 py-4 font-semibold text-foreground">주차</th>
-                <th className="px-6 py-4 font-semibold text-foreground text-right">가격</th>
-              </tr>
-            </thead>
             <tbody>
               {MOCK_RESULTS.map((result, index) => (
                 <tr
@@ -144,55 +136,61 @@ export function SearchResults({ query, onBack, onSelectAccommodation }: SearchRe
                     index === MOCK_RESULTS.length - 1 ? "border-b-0" : ""
                   }`}
                 >
-                  {/* Accommodation with thumbnail */}
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-4">
+                  <td className="px-6 py-8">
+                    <div className="flex gap-8 items-start">
+                      {/* Large Image - 288px (1.5x of 192px) */}
                       <img
                         src={result.image}
                         alt={result.name}
-                        className="w-24 h-24 rounded-lg object-cover flex-shrink-0"
+                        className="w-72 h-72 rounded-xl object-cover flex-shrink-0"
                       />
-                      <div>
-                        <h3 className="font-bold text-foreground">{result.name}</h3>
-                        <p className="text-sm text-muted-foreground mt-1">{result.location}</p>
+
+                      {/* Right side content */}
+                      <div className="flex-1 flex flex-col justify-between h-72">
+                        {/* Top: Hotel Name and Details */}
+                        <div>
+                          <h3 className="font-bold text-xl text-foreground mb-4">{result.name}</h3>
+                          <div className="space-y-3">
+                            {/* Rating */}
+                            <div className="flex items-center gap-3">
+                              <span className="text-base font-medium text-muted-foreground">평점:</span>
+                              <StarRating count={result.stars} />
+                            </div>
+                            {/* Reviews */}
+                            <div className="flex items-center gap-3">
+                              <span className="text-base font-medium text-muted-foreground">리뷰:</span>
+                              <span className="text-base text-foreground">{result.reviews.toLocaleString()}개</span>
+                            </div>
+                            {/* Parking */}
+                            <div className="flex items-center gap-3">
+                              <span className="text-base font-medium text-muted-foreground">주차:</span>
+                              <div
+                                className={`flex items-center gap-2 text-base font-medium ${
+                                  result.parking ? "text-green-600" : "text-muted-foreground"
+                                }`}
+                              >
+                                {result.parking ? (
+                                  <>
+                                    <ParkingCircle size={18} className="text-green-600" />
+                                    가능
+                                  </>
+                                ) : (
+                                  <>
+                                    <CircleOff size={18} />
+                                    불가능
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Bottom Right: Price */}
+                        <div className="text-right">
+                          <p className="text-base text-muted-foreground">1박 요금</p>
+                          <p className="text-3xl font-extrabold text-foreground">₩{result.price.toLocaleString()}</p>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-
-                  {/* Rating and Reviews */}
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <StarRating count={result.stars} />
-                      <span className="text-sm text-muted-foreground">리뷰 {result.reviews.toLocaleString()}개</span>
-                    </div>
-                  </td>
-
-                  {/* Parking */}
-                  <td className="px-6 py-4">
-                    <div
-                      className={`flex items-center gap-1.5 text-sm font-medium ${
-                        result.parking ? "text-green-600" : "text-muted-foreground"
-                      }`}
-                    >
-                      {result.parking ? (
-                        <>
-                          <ParkingCircle size={16} className="text-green-600" />
-                          가능
-                        </>
-                      ) : (
-                        <>
-                          <CircleOff size={16} />
-                          불가능
-                        </>
-                      )}
-                    </div>
-                  </td>
-
-                  {/* Price */}
-                  <td className="px-6 py-4 text-right">
-                    <div>
-                      <p className="text-sm text-muted-foreground">1박</p>
-                      <p className="text-xl font-extrabold text-foreground">₩{result.price.toLocaleString()}</p>
                     </div>
                   </td>
                 </tr>

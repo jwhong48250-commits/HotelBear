@@ -4,13 +4,14 @@ import { useState, useEffect } from "react"
 import { Header } from "@/components/header"
 import { SearchCard } from "@/components/search-card"
 import { RecommendationsCarousel } from "@/components/recommendations-carousel"
+import { TodaysRecommendations } from "@/components/todays-recommendations"
 import { SearchResults } from "@/components/search-results"
 import { AccommodationDetail } from "@/components/accommodation-detail"
 import { AuthModal } from "@/components/auth-modal"
 
 // ─── HERO BACKGROUND IMAGE ──────────────────────────────────────────────────
 // Replace this URL with your own hero background image when ready.
-const HERO_BG_IMAGE = "/Photo3.jpg"
+const HERO_BG_IMAGE = "/hero-bg.jpg"
 
 // ─── MAIN LOGO URL ──────────────────────────────────────────────────────────
 // Replace this URL with your own BearHotel logo image.
@@ -71,7 +72,7 @@ export default function BearHotelApp() {
         savedCount={savedCount}
         onLoginClick={() => setAuthModal("login")}
         onLogout={() => setUser(null)}
-        isScrolled={view === "results" ? true : isScrolled}
+        isScrolled={view === "results" || view === "detail" ? true : isScrolled}
       />
 
       {/* ── MAIN VIEW ─────────────────────────────────────── */}
@@ -104,36 +105,16 @@ export default function BearHotelApp() {
               <div className="w-full px-4">
                 <SearchCard onSearch={handleSearch} />
               </div>
-
-              {/* Trust badges */}
-              <div className="flex items-center gap-6 flex-wrap justify-center px-4">
-                {[
-                  { label: "10,000+ 숙소" },
-                  { label: "가격 예측" },
-                  { label: "최저가 보장" },
-                ].map((badge) => (
-                  <div
-                    key={badge.label}
-                    className="flex items-center gap-2 text-sm text-white/80 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full"
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-white/60" aria-hidden="true" />
-                    {badge.label}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Scroll indicator */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-white/50 animate-bounce">
-              <span className="text-xs">Scroll</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                <path d="M12 5v14M5 12l7 7 7-7" />
-              </svg>
             </div>
           </section>
 
+          {/* Today's Hotel Recommendations */}
+          <TodaysRecommendations />
+          
           {/* Recommendations Carousel */}
           <RecommendationsCarousel />
+
+
 
           {/* Footer strip */}
           <footer className="border-t border-border py-6 px-4 text-center text-sm text-muted-foreground">

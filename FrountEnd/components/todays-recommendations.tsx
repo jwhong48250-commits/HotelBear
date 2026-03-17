@@ -3,7 +3,7 @@
 import { Star, ChevronLeft, ChevronRight } from "lucide-react"
 import { useRef } from "react"
 
-const RECOMMENDATIONS = [
+const TODAY_RECOMMENDATIONS = [
   {
     id: 1,
     name: "Grand Pacific Hotel",
@@ -12,6 +12,7 @@ const RECOMMENDATIONS = [
     stars: 4,
     reviews: 2341,
     location: "Seoul, Korea",
+    rank: 1,
   },
   {
     id: 2,
@@ -21,6 +22,7 @@ const RECOMMENDATIONS = [
     stars: 5,
     reviews: 1879,
     location: "Jeju Island",
+    rank: 2,
   },
   {
     id: 3,
@@ -30,6 +32,7 @@ const RECOMMENDATIONS = [
     stars: 3,
     reviews: 954,
     location: "Gangwon Province",
+    rank: 3,
   },
   {
     id: 4,
@@ -39,6 +42,7 @@ const RECOMMENDATIONS = [
     stars: 3,
     reviews: 1203,
     location: "Busan, Korea",
+    rank: 4,
   },
   {
     id: 5,
@@ -48,6 +52,7 @@ const RECOMMENDATIONS = [
     stars: 4,
     reviews: 3102,
     location: "Incheon, Korea",
+    rank: 5,
   },
   {
     id: 6,
@@ -57,6 +62,7 @@ const RECOMMENDATIONS = [
     stars: 4,
     reviews: 768,
     location: "Daegu, Korea",
+    rank: 6,
   },
 ]
 
@@ -74,7 +80,7 @@ function StarRating({ count }: { count: number }) {
   )
 }
 
-function RecommendationCard({ item }: { item: (typeof RECOMMENDATIONS)[0] }) {
+function TodayCard({ item }: { item: (typeof TODAY_RECOMMENDATIONS)[0] }) {
   return (
     <div
       className="relative w-60 h-80 rounded-2xl overflow-hidden shrink-0 cursor-pointer group"
@@ -88,6 +94,11 @@ function RecommendationCard({ item }: { item: (typeof RECOMMENDATIONS)[0] }) {
       />
       {/* Dark gradient overlay for text legibility */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+      {/* Ranking Badge */}
+      <div className="absolute top-4 left-4 z-10 bg-primary text-primary-foreground rounded-lg px-3 py-1 font-bold text-lg">
+        {item.rank}
+      </div>
 
       {/* Content */}
       <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
@@ -110,7 +121,7 @@ function RecommendationCard({ item }: { item: (typeof RECOMMENDATIONS)[0] }) {
   )
 }
 
-export function RecommendationsCarousel() {
+export function TodaysRecommendations() {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const scroll = (direction: "left" | "right") => {
@@ -127,9 +138,9 @@ export function RecommendationsCarousel() {
     <section className="py-10">
       <div className="max-w-7xl mx-auto px-4 mb-6">
         <h2 className="text-2xl font-bold text-foreground text-balance">
-          이런 숙소는 어떠세요?
+          오늘의 호텔 추천
         </h2>
-        <p className="text-muted-foreground mt-1 text-sm">지금 인기 있는 최고 가치 숙소</p>
+        <p className="text-muted-foreground mt-1 text-sm">오늘 특별히 추천하는 숙소들</p>
       </div>
 
       {/* Carousel with arrow buttons */}
@@ -147,10 +158,10 @@ export function RecommendationsCarousel() {
         <div
           ref={scrollRef}
           className="overflow-x-auto flex gap-4 px-4 scroll-smooth hide-scrollbar"
-          aria-label="추천 숙소 캐러셀"
+          aria-label="오늘의 호텔 추천 캐러셀"
         >
-          {RECOMMENDATIONS.map((item) => (
-            <RecommendationCard key={item.id} item={item} />
+          {TODAY_RECOMMENDATIONS.map((item) => (
+            <TodayCard key={item.id} item={item} />
           ))}
         </div>
 

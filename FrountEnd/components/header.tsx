@@ -4,8 +4,10 @@ import { useState, useRef, useEffect } from "react"
 import { Menu, Bookmark, LogOut, ChevronDown } from "lucide-react"
 
 // ─── HEADER LOGO URL ────────────────────────────────────────────────────────
-// Replace this URL with your own BearHotel logo PNG file.
+// 기본 로고(스크롤 전)
 const HEADER_LOGO_URL = "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Logo-IcWDMow1iPBnqAJsrtbPlJsoVXVIeZ.png"
+// 스크롤 후 로고 (public/LogoBlack.png)
+const HEADER_LOGO_SCROLLED_URL = "/LogoBlack.png"
 // ────────────────────────────────────────────────────────────────────────────
 
 interface User {
@@ -46,18 +48,12 @@ export function Header({ user, savedCount, onLoginClick, onLogout, isScrolled = 
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center">
-        <img
-            src={isScrolled ? "LogoBlack.png" : "LogoWhite.png"}
+          <img
+            src={isScrolled ? HEADER_LOGO_SCROLLED_URL : HEADER_LOGO_URL}
             alt="BearHotel Logo"
-            className={`h-8 transition-opacity duration-300 ${
-              isScrolled ? "opacity-100" : "opacity-90"
-            }`}
+            className={`h-8 transition-opacity duration-300 ${isScrolled ? "opacity-100" : "opacity-90"}`}
           />
-          <div className={`text-xs font-semibold ml-2 transition-colors duration-300 ${
-            isScrolled ? "text-gray-500" : "text-white/70"
-          }`}>
-            {/* 사용자 로고 PNG 파일 */}
-          </div>
+        
         </div>
 
         {/* Right side nav */}

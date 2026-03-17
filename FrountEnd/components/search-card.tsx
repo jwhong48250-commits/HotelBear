@@ -110,7 +110,7 @@ export function SearchCard({ onSearch }: SearchCardProps) {
           </div>
         </div>
 
-        {/* Row 2: Three-Section Layout (Check-in, Check-out, Guests) */}
+        {/* Row 2: Check-in, Check-out, Guests */}
         <div className="grid grid-cols-3 gap-3">
           {/* Check-in */}
           <div className="flex items-center gap-3 border border-input rounded-xl px-4 py-3 bg-background hover:border-ring focus-within:border-ring transition-colors">
