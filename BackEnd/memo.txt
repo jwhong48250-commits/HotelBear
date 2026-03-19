@@ -1,3 +1,5 @@
 - 크롤링 시작 코드드
 python -m BackEnd.Crawling.Crawling
 python -m BackEnd.Crawling.hotelCrawling
+
+python -m BackEnd.api.app

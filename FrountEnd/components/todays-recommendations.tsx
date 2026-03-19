@@ -1,70 +1,21 @@
 "use client"
 
 import { Star, ChevronLeft, ChevronRight } from "lucide-react"
-import { useRef } from "react"
+import { useRef, useState, useEffect } from "react"
 
-const TODAY_RECOMMENDATIONS = [
-  {
-    id: 1,
-    name: "Grand Pacific Hotel",
-    image: "/hotel-1.jpg",
-    price: 89000,
-    stars: 4,
-    reviews: 2341,
-    location: "Seoul, Korea",
-    rank: 1,
-  },
-  {
-    id: 2,
-    name: "Oceanview Resort & Spa",
-    image: "/hotel-2.jpg",
-    price: 142000,
-    stars: 5,
-    reviews: 1879,
-    location: "Jeju Island",
-    rank: 2,
-  },
-  {
-    id: 3,
-    name: "Forest Cabin Pension",
-    image: "/hotel-3.jpg",
-    price: 67000,
-    stars: 3,
-    reviews: 954,
-    location: "Gangwon Province",
-    rank: 3,
-  },
-  {
-    id: 4,
-    name: "City Boutique Guesthouse",
-    image: "/hotel-4.jpg",
-    price: 43000,
-    stars: 3,
-    reviews: 1203,
-    location: "Busan, Korea",
-    rank: 4,
-  },
-  {
-    id: 5,
-    name: "Skyline Business Hotel",
-    image: "/hotel-5.jpg",
-    price: 118000,
-    stars: 4,
-    reviews: 3102,
-    location: "Incheon, Korea",
-    rank: 5,
-  },
-  {
-    id: 6,
-    name: "Rooftop Urban Stay",
-    image: "/hotel-6.jpg",
-    price: 97000,
-    stars: 4,
-    reviews: 768,
-    location: "Daegu, Korea",
-    rank: 6,
-  },
-]
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+
+export interface TodayItem {
+  id: number
+  name: string
+  image: string
+  price: number
+  stars: number
+  reviews: number
+  location: string
+  rank: number
+  [key: string]: unknown
+}
 
 function StarRating({ count }: { count: number }) {
   return (
@@ -80,11 +31,14 @@ function StarRating({ count }: { count: number }) {
   )
 }
 
-function TodayCard({ item }: { item: (typeof TODAY_RECOMMENDATIONS)[0] }) {
+function TodayCard({ item, onClick }: { item: TodayItem; onClick?: () => void }) {
   return (
     <div
       className="relative w-60 h-80 rounded-2xl overflow-hidden shrink-0 cursor-pointer group"
       role="article"
+      onClick={onClick}
+      onKeyDown={(e) => e.key === "Enter" && onClick?.()}
+      tabIndex={0}
     >
       {/* Background image */}
       <img
@@ -109,9 +63,9 @@ function TodayCard({ item }: { item: (typeof TODAY_RECOMMENDATIONS)[0] }) {
           <span className="text-xs text-white/70">리뷰 {item.reviews.toLocaleString()}개</span>
         </div>
         <div className="mt-2 flex items-baseline gap-1">
-          <span className="text-xs text-white/70">부터</span>
+          <span className="text-xs text-white/70">1박</span>
           <span className="text-lg font-extrabold">₩{item.price.toLocaleString()}</span>
-          <span className="text-xs text-white/70">/박</span>
+          <span className="text-xs text-white/70">부터</span>
         </div>
       </div>
 
@@ -121,8 +75,31 @@ function TodayCard({ item }: { item: (typeof TODAY_RECOMMENDATIONS)[0] }) {
   )
 }
 
-export function TodaysRecommendations() {
+export function TodaysRecommendations({ onSelectAccommodation }: { onSelectAccommodation?: (item: TodayItem) => void }) {
   const scrollRef = useRef<HTMLDivElement>(null)
+  const [items, setItems] = useState<TodayItem[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch(`${API_BASE}/api/today-recommendations`)
+      .then((res) => res.json())
+      .then((data: unknown[]) => {
+        const list = (data || []).map((row: Record<string, unknown>, i: number) => ({
+          id: Number(row.id) || i + 1,
+          name: String(row.name || ""),
+          image: String(row.image || row.img_url || ""),
+          price: Number(row.price) || 0,
+          stars: Number(row.stars ?? row.grade) || 0,
+          reviews: Number(row.reviews ?? row.reviewCount) || 0,
+          location: String(row.location || row.address || ""),
+          rank: i + 1,
+          ...row,
+        })) as TodayItem[]
+        setItems(list)
+      })
+      .catch(() => setItems([]))
+      .finally(() => setLoading(false))
+  }, [])
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -160,9 +137,17 @@ export function TodaysRecommendations() {
           className="overflow-x-auto flex gap-4 px-4 scroll-smooth hide-scrollbar"
           aria-label="오늘의 호텔 추천 캐러셀"
         >
-          {TODAY_RECOMMENDATIONS.map((item) => (
-            <TodayCard key={item.id} item={item} />
-          ))}
+          {loading ? (
+            <div className="shrink-0 w-60 h-80 flex items-center justify-center text-muted-foreground">로딩 중...</div>
+          ) : (
+            items.map((item) => (
+              <TodayCard
+                key={item.id}
+                item={item}
+                onClick={onSelectAccommodation ? () => onSelectAccommodation(item) : undefined}
+              />
+            ))
+          )}
         </div>
 
         {/* Right Arrow */}

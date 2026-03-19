@@ -1,64 +1,20 @@
 "use client"
 
 import { Star, ChevronLeft, ChevronRight } from "lucide-react"
-import { useRef } from "react"
+import { useRef, useState, useEffect } from "react"
 
-const RECOMMENDATIONS = [
-  {
-    id: 1,
-    name: "Grand Pacific Hotel",
-    image: "/hotel-1.jpg",
-    price: 89000,
-    stars: 4,
-    reviews: 2341,
-    location: "Seoul, Korea",
-  },
-  {
-    id: 2,
-    name: "Oceanview Resort & Spa",
-    image: "/hotel-2.jpg",
-    price: 142000,
-    stars: 5,
-    reviews: 1879,
-    location: "Jeju Island",
-  },
-  {
-    id: 3,
-    name: "Forest Cabin Pension",
-    image: "/hotel-3.jpg",
-    price: 67000,
-    stars: 3,
-    reviews: 954,
-    location: "Gangwon Province",
-  },
-  {
-    id: 4,
-    name: "City Boutique Guesthouse",
-    image: "/hotel-4.jpg",
-    price: 43000,
-    stars: 3,
-    reviews: 1203,
-    location: "Busan, Korea",
-  },
-  {
-    id: 5,
-    name: "Skyline Business Hotel",
-    image: "/hotel-5.jpg",
-    price: 118000,
-    stars: 4,
-    reviews: 3102,
-    location: "Incheon, Korea",
-  },
-  {
-    id: 6,
-    name: "Rooftop Urban Stay",
-    image: "/hotel-6.jpg",
-    price: 97000,
-    stars: 4,
-    reviews: 768,
-    location: "Daegu, Korea",
-  },
-]
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+
+interface CarouselItem {
+  id: number
+  name: string
+  image: string
+  price: number
+  stars: number
+  reviews: number
+  location: string
+  [key: string]: unknown
+}
 
 function StarRating({ count }: { count: number }) {
   return (
@@ -74,11 +30,20 @@ function StarRating({ count }: { count: number }) {
   )
 }
 
-function RecommendationCard({ item }: { item: (typeof RECOMMENDATIONS)[0] }) {
+function RecommendationCard({
+  item,
+  onClick,
+}: {
+  item: CarouselItem
+  onClick?: () => void
+}) {
   return (
     <div
       className="relative w-60 h-80 rounded-2xl overflow-hidden shrink-0 cursor-pointer group"
       role="article"
+      onClick={onClick}
+      onKeyDown={(e) => e.key === "Enter" && onClick?.()}
+      tabIndex={0}
     >
       {/* Background image */}
       <img
@@ -110,8 +75,34 @@ function RecommendationCard({ item }: { item: (typeof RECOMMENDATIONS)[0] }) {
   )
 }
 
-export function RecommendationsCarousel() {
+export function RecommendationsCarousel({
+  onSelectAccommodation,
+}: {
+  onSelectAccommodation?: (item: CarouselItem) => void
+} = {}) {
   const scrollRef = useRef<HTMLDivElement>(null)
+  const [items, setItems] = useState<CarouselItem[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch(`${API_BASE}/api/carousel-recommendations`)
+      .then((res) => res.json())
+      .then((data: unknown[]) => {
+        const list = (data || []).map((row: Record<string, unknown>) => ({
+          id: Number(row.id),
+          name: String(row.name || ""),
+          image: String(row.image || row.img_url || ""),
+          price: Number(row.price) || 0,
+          stars: Number(row.stars ?? row.grade) || 0,
+          reviews: Number(row.reviews ?? row.reviewCount) || 0,
+          location: String(row.location || row.address || ""),
+          ...row,
+        })) as CarouselItem[]
+        setItems(list)
+      })
+      .catch(() => setItems([]))
+      .finally(() => setLoading(false))
+  }, [])
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -149,9 +140,17 @@ export function RecommendationsCarousel() {
           className="overflow-x-auto flex gap-4 px-4 scroll-smooth hide-scrollbar"
           aria-label="추천 숙소 캐러셀"
         >
-          {RECOMMENDATIONS.map((item) => (
-            <RecommendationCard key={item.id} item={item} />
-          ))}
+          {loading ? (
+            <div className="shrink-0 w-60 h-80 flex items-center justify-center text-muted-foreground">로딩 중...</div>
+          ) : (
+            items.map((item) => (
+              <RecommendationCard
+                key={item.id}
+                item={item}
+                onClick={onSelectAccommodation ? () => onSelectAccommodation(item) : undefined}
+              />
+            ))
+          )}
         </div>
 
         {/* Right Arrow */}

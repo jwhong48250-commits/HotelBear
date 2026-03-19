@@ -1,4 +1,5 @@
 import sys
+import joblib
 sys.path.append(r"C:\ddddwoo\project\HotelBear")
 from BackEnd.database import get_connection
 import numpy as np
@@ -37,14 +38,14 @@ df = load_data()
 # 데이터 증폭단계 (3배 증폭)-----------------------------------------------
 df['facility_count'] = df['facillity_list'].apply(lambda x: len(x.split(',')) if isinstance(x, str) else 0)
 
-df = df.get_dummies(columns=['area', 'type'], prefix=['area', 'type'])
+df = pd.get_dummies(df, columns=['area', 'type'], prefix=['area', 'type'])
 id_cols = [col for col in df.columns if col not in ['low_week_price', 'low_weekend_price', 'event_price', 'name', 'facillity_list']]
 
 df_melted = pd.melt(
     df,
     id_vars=id_cols,
     value_vars=['low_week_price', 'low_weekend_price', 'event_price'],
-    var_name='price=type',
+    var_name='price_type',
     value_name='target_price'
 )
 
@@ -160,43 +161,45 @@ y = study_df['log_target_price'] # 정답지
 # 학습 데이터와 테스트 데이터 분리 (8:2 비율)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.10, random_state=2026)
 
-# 2-2. 3가지 강력한 모델 정의
+# 1. XGBoost: 트리를 깊게 파고, 과적합 방지를 위해 규제(reg) 강화
 model1 = XGBRegressor(
-    n_estimators=5000,
-    learning_rate=0.03,
-    max_depth=6,
-    min_child_weight=3,
-    subsample=0.8,
-    colsample_bytree=0.8,
-    reg_alpha=0.1,
-    reg_lambda=1.0,
+    n_estimators=5000,      
+    learning_rate=0.05,     
+    max_depth=8,            
+    min_child_weight=1,     
+    subsample=0.9,         
+    colsample_bytree=0.9,
+    reg_alpha=0.5,          
+    reg_lambda=2.0,         
     random_state=2026
-    )
+)
+
+# 2. LightGBM: 잎(leaves)의 개수를 확 늘려서 성능 극대화
 model2 = LGBMRegressor(
     n_estimators=5000,
-    learning_rate=0.03,
-    num_leaves=31,
-    max_depth=6,
-    min_child_samples=20,
-    subsample=0.8,
-    colsample_bytree=0.8,
-    reg_alpha=0.1,
-    reg_lambda=1.0,
+    learning_rate=0.05,
+    num_leaves=63,          
+    min_child_samples=15,   # 20 -> 15
+    subsample=0.9,
+    colsample_bytree=0.9,
+    reg_alpha=0.5,
+    reg_lambda=2.0,
     random_state=2026
-    )
-model3 = CatBoostRegressor(
+)
+
+# 3. CatBoost: 범주형 처리에 강한 모델, 깊이와 규제 밸런스 조정
+model3 = CatBoostRegressor(  
     iterations=5000,
-    learning_rate=0.03,
-    depth=6,
-    l2_leaf_reg=5,
-    random_strength=1.5,
-    bagging_temperature=1,
+    learning_rate=0.05,
+    depth=8,                # 6 -> 8
+    l2_leaf_reg=3,          # 5 -> 3 (규제를 살짝 완화해서 학습력 향상)
+    random_strength=1.0,    # 1.5 -> 1.0
+    bagging_temperature=0.5,
     loss_function='RMSE',
     eval_metric='RMSE',
     random_state=2026,
     verbose=200 
 )
-
 # 2-3. 앙상블 모델 구성 (Voting)
 ensemble_model = VotingRegressor(
     estimators=[
@@ -222,3 +225,11 @@ r2 = r2_score(y_test, y_pred_log)
 print(f"\n📊 모델 평가 결과")
 print(f"평균 절대 오차(MAE): 약 {int(mae):,}원")
 print(f"결정계수(R2 Score): {r2:.4f} (1에 가까울수록 완벽)")
+# 1. 앙상블 모델 저장
+joblib.dump(ensemble_model, 'hotel_price_ensemble_model.pkl')
+
+# 2. 학습 데이터의 컬럼 리스트 저장 (나중에 예측할 때 형태를 맞추기 위해 필수!)
+training_columns = X.columns.tolist()
+joblib.dump(training_columns, 'hotel_training_columns.pkl')
+
+print("✅ 모델 및 컬럼 데이터 저장 완료! (hotel_price_ensemble_model.pkl)")

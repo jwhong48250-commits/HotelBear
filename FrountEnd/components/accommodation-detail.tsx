@@ -1,6 +1,7 @@
 "use client"
 
-import { Star, ArrowLeft, Wifi, Waves, Dumbbell, UtensilsCrossed, Tv, Wind, Bed } from "lucide-react"
+import { Star, ArrowLeft, Bed, MapPin, Waves, Coffee, Bath, Car, Dumbbell, Wine, Clock, Sun, Users } from "lucide-react"
+import { useEffect, useRef } from "react"
 
 interface Accommodation {
   id: number
@@ -12,6 +13,18 @@ interface Accommodation {
   price: number
   location: string
   category: string
+  address?: string
+  latitude?: number | null
+  longitude?: number | null
+  swimming_pool?: number
+  breakfast?: number
+  bathtub?: number
+  pickUp?: number
+  fitness?: number
+  bar?: number
+  desk24?: number
+  terrace?: number
+  club?: number
 }
 
 interface AccommodationDetailProps {
@@ -33,16 +46,66 @@ function StarRating({ count, total = 5 }: { count: number; total?: number }) {
   )
 }
 
-const AMENITIES = [
-  { icon: Wifi, label: "무료 WiFi" },
-  { icon: Waves, label: "수영장" },
-  { icon: Dumbbell, label: "피트니스" },
-  { icon: UtensilsCrossed, label: "레스토랑" },
-  { icon: Tv, label: "스트리밍 서비스" },
-  { icon: Wind, label: "에어컨" },
+const AMENITY_ITEMS: { key: keyof Accommodation; icon: typeof Waves; label: string }[] = [
+  { key: "swimming_pool", icon: Waves, label: "수영장/사우나" },
+  { key: "breakfast", icon: Coffee, label: "조식" },
+  { key: "bathtub", icon: Bath, label: "욕조" },
+  { key: "pickUp", icon: Car, label: "픽업" },
+  { key: "fitness", icon: Dumbbell, label: "피트니스" },
+  { key: "bar", icon: Wine, label: "바" },
+  { key: "desk24", icon: Clock, label: "24시간 데스크" },
+  { key: "terrace", icon: Sun, label: "테라스" },
+  { key: "club", icon: Users, label: "클럽/연회장" },
 ]
 
+declare global {
+  interface Window {
+    kakao: {
+      maps: {
+        load: (callback: () => void) => void
+        LatLng: new (lat: number, lng: number) => { getLat: () => number; getLng: () => number }
+        Map: new (el: HTMLElement, opts: { center: unknown; level: number }) => void
+        Marker: new (opts: { position: unknown }) => void
+        event: { addListener: (target: unknown, type: string, fn: () => void) => void }
+      }
+    }
+  }
+}
+
+const KAKAO_APP_KEY = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY || ""
+
 export function AccommodationDetail({ accommodation, onBack }: AccommodationDetailProps) {
+  const mapRef = useRef<HTMLDivElement>(null)
+  console.log("지도용 lat/lng", {
+    latitude: accommodation.latitude,
+    longitude: accommodation.longitude,
+    address: accommodation.address,
+  })
+  useEffect(() => {
+    const lat = accommodation.latitude != null ? Number(accommodation.latitude) : null
+    const lng = accommodation.longitude != null ? Number(accommodation.longitude) : null
+    if (!mapRef.current || lat == null || lng == null) return
+
+    const initMap = () => {
+      if (!mapRef.current || !window.kakao?.maps) return
+      const center = new window.kakao.maps.LatLng(lat, lng)
+      const map = new window.kakao.maps.Map(mapRef.current, { center, level: 3 })
+      const marker = new window.kakao.maps.Marker({ position: center })
+      marker.setMap(map)
+    }
+
+    if (window.kakao?.maps) {
+      window.kakao.maps.load(initMap)
+      return
+    }
+    if (!KAKAO_APP_KEY) return
+    const script = document.createElement("script")
+    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_APP_KEY}&autoload=false`
+    script.async = true
+    document.head.appendChild(script)
+    script.onload = () => window.kakao.maps.load(initMap)
+  }, [accommodation.latitude, accommodation.longitude])
+
   return (
     <main className="min-h-screen bg-background pt-20 pb-32">
       {/* Back Button - Sticky Top */}
@@ -92,22 +155,43 @@ export function AccommodationDetail({ accommodation, onBack }: AccommodationDeta
           </p>
         </div>
 
-        {/* Amenities */}
+        {/* 편의 시설 유무 */}
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-foreground mb-6">편의 시설</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {AMENITIES.map((amenity) => {
-              const Icon = amenity.icon
+            {AMENITY_ITEMS.map(({ key, icon: Icon, label }) => {
+              const hasIt = Number(accommodation[key]) > 0
               return (
                 <div
-                  key={amenity.label}
-                  className="flex items-center gap-3 p-4 rounded-xl bg-primary/10 border border-primary/20"
+                  key={key}
+                  className={`flex items-center gap-3 p-4 rounded-xl border ${
+                    hasIt ? "bg-primary/10 border-primary/20" : "bg-muted/50 border-border"
+                  }`}
                 >
-                  <Icon size={24} className="text-primary flex-shrink-0" />
-                  <span className="text-sm font-medium text-foreground">{amenity.label}</span>
+                  <Icon size={24} className={hasIt ? "text-primary flex-shrink-0" : "text-muted-foreground flex-shrink-0"} />
+                  <span className={`text-sm font-medium ${hasIt ? "text-foreground" : "text-muted-foreground"}`}>
+                    {label} {hasIt ? "유" : "무"}
+                  </span>
                 </div>
               )
             })}
+          </div>
+        </div>
+
+        {/* 지도 (카카오맵) + 주소 */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold text-foreground mb-6">위치</h2>
+          <div className="bg-card border border-border rounded-2xl overflow-hidden">
+            <div id="map-container" className="relative w-full h-80 bg-muted flex items-center justify-center" ref={mapRef} />
+            <div className="p-4 border-t border-border">
+              <div className="flex items-center gap-3">
+                <MapPin size={20} className="text-primary flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-foreground">{accommodation.name}</p>
+                  <p className="text-sm text-muted-foreground">{accommodation.address || accommodation.location}</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

@@ -13,7 +13,9 @@ interface AuthModalProps {
 export function AuthModal({ mode, onClose, onSuccess, onSwitchMode }: AuthModalProps) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [passwordConfirm, setPasswordConfirm] = useState("")
   const [name, setName] = useState("")
+  const [phone, setPhone] = useState("")
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -93,11 +95,23 @@ export function AuthModal({ mode, onClose, onSuccess, onSwitchMode }: AuthModalP
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                placeholder="example@email.com"
                 required
                 className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition"
               />
             </div>
+            {mode === "signup" && (
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">휴대폰번호</label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="010-0000-0000"
+                  className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition"
+                />
+              </div>
+            )}
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">비밀번호</label>
               <input
@@ -109,6 +123,18 @@ export function AuthModal({ mode, onClose, onSuccess, onSwitchMode }: AuthModalP
                 className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition"
               />
             </div>
+            {mode === "signup" && (
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">비밀번호 확인</label>
+                <input
+                  type="password"
+                  value={passwordConfirm}
+                  onChange={(e) => setPasswordConfirm(e.target.value)}
+                  placeholder="비밀번호를 다시 입력하세요"
+                  className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition"
+                />
+              </div>
+            )}
             <button
               type="submit"
               className="w-full py-3 rounded-xl font-semibold text-primary-foreground"

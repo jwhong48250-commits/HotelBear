@@ -19,14 +19,16 @@ interface GuestRoomState {
   children: number
 }
 
+export interface SearchCardParams {
+  destination: string
+  category: CategoryId
+  checkIn: string
+  checkOut: string
+  guests: GuestRoomState
+}
+
 interface SearchCardProps {
-  onSearch: (params: {
-    destination: string
-    category: CategoryId
-    checkIn: string
-    checkOut: string
-    guests: GuestRoomState
-  }) => void
+  onSearch: (params: SearchCardParams) => void
 }
 
 export function SearchCard({ onSearch }: SearchCardProps) {
@@ -57,8 +59,19 @@ export function SearchCard({ onSearch }: SearchCardProps) {
 
   const guestLabel = `${guests.rooms}개 객실, ${guests.adults}명${guests.children > 0 ? `, 어린이 ${guests.children}명` : ""}`
 
+  const getTodayStr = () => {
+    const d = new Date()
+    return d.toISOString().slice(0, 10)
+  }
+
   const handleSearch = () => {
-    onSearch({ destination, category, checkIn, checkOut, guests })
+    const start = checkIn || getTodayStr()
+    const end = checkOut || getTodayStr()
+    onSearch({ destination, category, checkIn: start, checkOut: end, guests })
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") handleSearch()
   }
 
   return (
@@ -96,15 +109,15 @@ export function SearchCard({ onSearch }: SearchCardProps) {
 
       {/* Search Inputs */}
       <div className="p-6 space-y-4">
-        {/* Row 1: Destination/Property Name */}
-        <div>
+        {/* Row 1: Destination/Property Name - 엔터로 검색 */}
+        <div onKeyDown={handleKeyDown}>
           <div className="flex items-center gap-3 border border-input rounded-xl px-4 py-3 bg-background hover:border-ring focus-within:border-ring transition-colors">
             <Search size={20} className="text-muted-foreground shrink-0" />
             <input
               type="text"
               value={destination}
               onChange={(e) => setDestination(e.target.value)}
-              placeholder="지역 또는 숙소명 입력"
+              placeholder="지역 또는 숙소명 입력 (예: 서울 5성급 호텔)"
               className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground text-sm focus:outline-none"
             />
           </div>

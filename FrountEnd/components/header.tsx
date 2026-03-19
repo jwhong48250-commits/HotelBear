@@ -6,8 +6,8 @@ import { Menu, Bookmark, LogOut, ChevronDown } from "lucide-react"
 // ─── HEADER LOGO URL ────────────────────────────────────────────────────────
 // 기본 로고(스크롤 전)
 const HEADER_LOGO_URL = "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Logo-IcWDMow1iPBnqAJsrtbPlJsoVXVIeZ.png"
-// 스크롤 후 로고 (public/LogoBlack.png)
-const HEADER_LOGO_SCROLLED_URL = "/LogoBlack.png"
+// 메인 외 페이지나 스크롤 후 로고 (public/LogoBlack.png)
+const HEADER_LOGO_BLACK_URL = "/LogoBlack.png"
 // ────────────────────────────────────────────────────────────────────────────
 
 interface User {
@@ -20,10 +20,20 @@ interface HeaderProps {
   savedCount: number
   onLoginClick: () => void
   onLogout: () => void
+  onLogoClick?: () => void
   isScrolled?: boolean
+  isMainPage?: boolean
 }
 
-export function Header({ user, savedCount, onLoginClick, onLogout, isScrolled = false }: HeaderProps) {
+export function Header({
+  user,
+  savedCount,
+  onLoginClick,
+  onLogout,
+  onLogoClick,
+  isScrolled = false,
+  isMainPage = false,
+}: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -46,14 +56,20 @@ export function Header({ user, savedCount, onLoginClick, onLogout, isScrolled = 
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-        {/* Logo */}
+        {/* Logo - 클릭 시 메인으로 */}
         <div className="flex items-center">
-          <img
-            src={isScrolled ? HEADER_LOGO_SCROLLED_URL : HEADER_LOGO_URL}
-            alt="BearHotel Logo"
-            className={`h-8 transition-opacity duration-300 ${isScrolled ? "opacity-100" : "opacity-90"}`}
-          />
-        
+          <button
+            type="button"
+            onClick={onLogoClick}
+            className="flex items-center focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-lg"
+            aria-label="메인으로 이동"
+          >
+            <img
+              src={isMainPage && !isScrolled ? HEADER_LOGO_URL : HEADER_LOGO_BLACK_URL}
+              alt="BearHotel Logo"
+              className="h-8 transition-opacity duration-300 opacity-100"
+            />
+          </button>
         </div>
 
         {/* Right side nav */}
