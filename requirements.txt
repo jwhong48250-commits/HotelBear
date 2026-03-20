@@ -1,43 +1,12 @@
 # =============================================================================
-# HotelBear — 통합 Python 의존성
-# 설치: pip install -r requirements.txt
-# (프로젝트 루트에서 실행 권장)
+# HotelBear — Backend API(Flask) 실행용 Python 의존성
+#
+# 이 프로젝트의 `BackEnd/api/app.py`는 아래 패키지만 런타임에 필요합니다.
+# (학습/크롤링/가격업데이트 스크립트는 별도 실행 시 필요 패키지가 추가될 수 있음)
 # =============================================================================
 
-# ----- Web API (BackEnd/api/app.py) -----
 flask>=2.3.0
 flask-cors>=4.0.0
 
-# ----- DB & 환경설정 (BackEnd/database.py, config.py) -----
 pymysql>=1.1.0
 python-dotenv>=1.0.0
-
-# ----- 데이터 / 수치 (공통) -----
-numpy>=1.24.0
-pandas>=2.0.0
-
-# ----- ML 학습·추론 (BackEnd/XGBoost/XGBoost.py, update_hotel_prices.py) -----
-scikit-learn>=1.3.0
-xgboost>=2.0.0
-lightgbm>=4.0.0
-catboost>=1.2.0
-joblib>=1.3.0
-
-# ----- 지오코딩·거리 -----
-geopy>=2.4.0
-haversine>=2.8.0
-
-# ----- 시각화 (학습 스크립트 XGBoost.py에서 사용) -----
-matplotlib>=3.7.0
-seaborn>=0.13.0
-
-# ----- 배치/진행률 (update_hotel_prices.py) -----
-tqdm>=4.66.0
-
-# ----- 크롤링 (BackEnd/Crawling/*.py) -----
-selenium>=4.15.0
-
-# ----- 참고 -----
-# - Selenium은 Chrome(또는 사용 브라우저) + ChromeDriver 버전을 맞춰야 합니다.
-# - ML 패키지(xgboost/lightgbm/catboost)는 OS·Python 버전에 따라 wheel이 다를 수 있습니다.
-# - API만 돌릴 때는 선택적으로: pip install flask flask-cors pymysql python-dotenv
